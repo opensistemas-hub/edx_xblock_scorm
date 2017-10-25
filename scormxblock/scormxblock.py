@@ -32,7 +32,6 @@ class ScormXBlock(XBlock):
     )
     scorm_zip_file = String(
         display_name=_("Uploaded scorm zip file"),
-        default='',
         scope=Scope.settings,
     )
     version_scorm = String(
