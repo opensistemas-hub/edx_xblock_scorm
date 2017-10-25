@@ -12,6 +12,8 @@ function ScormStudioXBlock(runtime, element) {
     form_data.append('has_score', has_score);
     runtime.notify('save', {state: 'start'});
 
+    debugger;
+
     $.ajax({
       url: handlerUrl,
       dataType: 'text',

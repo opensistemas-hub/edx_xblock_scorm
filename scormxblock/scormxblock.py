@@ -140,8 +140,7 @@ class ScormXBlock(XBlock):
             if os.path.exists(path_to_file):
                 shutil.rmtree(path_to_file)
             zip_file.extractall(path_to_file)
-            self.set_fields_xblock(path_to_file)
-            self.scorm_zip_file = file
+            self.set_fields_xblock(path_to_file, file)
         return Response(json.dumps({'result': 'success'}), content_type='application/json')
 
     @XBlock.json_handler
@@ -248,7 +247,7 @@ class ScormXBlock(XBlock):
         template = Template(template_str)
         return template.render(Context(context))
 
-    def set_fields_xblock(self, path_to_file):
+    def set_fields_xblock(self, path_to_file, zipfile=''):
         path_index_page = 'index.html'
         try:
             tree = ET.parse('{}/imsmanifest.xml'.format(path_to_file))
@@ -277,6 +276,7 @@ class ScormXBlock(XBlock):
 
         self.scorm_file = os.path.join(settings.PROFILE_IMAGE_BACKEND['options']['base_url'],
                                        '{}/{}'.format(self.location.block_id, path_index_page))
+        self.scorm_zip_file = zipfile
 
     def get_completion_status(self):
         completion_status = self.lesson_status
