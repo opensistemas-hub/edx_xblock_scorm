@@ -76,6 +76,15 @@ class ScormXBlock(XBlock):
 
     has_author_view = True
 
+    @property
+    def scorm_file_path(self):
+        scorm_file_path = ''
+        if self.scorm_file:
+            scheme = 'https' if settings.HTTPS == 'on' else 'http'
+            scorm_file_path = '{}://{}{}'.format(scheme, settings.ENV_TOKENS.get('LMS_BASE'), self.scorm_file)
+
+        return scorm_file_path
+
     def resource_string(self, path):
         """Handy helper for getting resources from our kit."""
         data = pkg_resources.resource_string(__name__, path)
@@ -103,10 +112,8 @@ class ScormXBlock(XBlock):
         return frag
 
     def author_view(self, context):
-        context_html = self.get_context_student()
+        context_html = self.get_context_author()
         template = self.render_template("static/html/author_view.html", context_html)
-        # html = self.resource_string("static/html/author_view.html")
-        # frag = Fragment(html)
         frag = Fragment(template)
         frag.add_css(self.resource_string("static/css/scormxblock.css"))
         frag.add_javascript(self.resource_string("static/js/src/scormxblock.js"))
@@ -212,14 +219,17 @@ class ScormXBlock(XBlock):
             'has_score_value': self.has_score
         }
 
-    def get_context_student(self):
-        scorm_file_path = ''
-        if self.scorm_file:
-            scheme = 'https' if settings.HTTPS == 'on' else 'http'
-            scorm_file_path = '{}://{}{}'.format(scheme, settings.ENV_TOKENS.get('LMS_BASE'), self.scorm_file)
 
+
+    def get_context_author(self):
         return {
-            'scorm_file_path': scorm_file_path,
+            'scorm_file_path': self.scorm_file_path,
+            'scorm_file': self.scorm_file or ''
+        }
+
+    def get_context_student(self):
+        return {
+            'scorm_file_path': self.scorm_file_path,
             'lesson_score': self.lesson_score,
             'weight': self.weight,
             'has_score': self.has_score,
