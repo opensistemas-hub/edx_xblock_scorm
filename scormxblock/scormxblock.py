@@ -276,7 +276,7 @@ class ScormXBlock(XBlock):
 
         self.scorm_file = os.path.join(settings.PROFILE_IMAGE_BACKEND['options']['base_url'],
                                        '{}/{}'.format(self.location.block_id, path_index_page))
-        self.scorm_zip_file = zipfile
+        # self.scorm_zip_file = zipfile
 
     def get_completion_status(self):
         completion_status = self.lesson_status
