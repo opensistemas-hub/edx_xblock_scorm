@@ -30,6 +30,11 @@ class ScormXBlock(XBlock):
         display_name=_("Upload scorm file"),
         scope=Scope.settings,
     )
+    scorm_zip_file = String(
+        display_name=_("Uploaded scorm zip file"),
+        default='',
+        scope=Scope.settings,
+    )
     version_scorm = String(
         default="SCORM_12",
         scope=Scope.settings,
@@ -136,6 +141,7 @@ class ScormXBlock(XBlock):
                 shutil.rmtree(path_to_file)
             zip_file.extractall(path_to_file)
             self.set_fields_xblock(path_to_file)
+            self.scorm_zip_file = file
         return Response(json.dumps({'result': 'success'}), content_type='application/json')
 
     @XBlock.json_handler
@@ -215,6 +221,7 @@ class ScormXBlock(XBlock):
             'field_display_name': self.fields['display_name'],
             'display_name_value': self.display_name,
             'field_scorm_file': self.fields['scorm_file'],
+            'field_scorm_zip_file': self.fields['scorm_zip_file'],
             'field_has_score': self.fields['has_score'],
             'has_score_value': self.has_score,
             'fields': self.fields
