@@ -216,15 +216,15 @@ class ScormXBlock(XBlock):
             'display_name_value': self.display_name,
             'field_scorm_file': self.fields['scorm_file'],
             'field_has_score': self.fields['has_score'],
-            'has_score_value': self.has_score
+            'has_score_value': self.has_score,
+            'fields': self.fields
         }
 
 
 
     def get_context_author(self):
         return {
-            'scorm_file_path': self.scorm_file_path,
-            'scorm_file': self.scorm_file or ''
+            'scorm_file_path': self.scorm_file_path
         }
 
     def get_context_student(self):
