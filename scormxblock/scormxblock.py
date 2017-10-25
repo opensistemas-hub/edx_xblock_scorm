@@ -104,7 +104,7 @@ class ScormXBlock(XBlock):
 
     def author_view(self, context):
         context_html = self.get_context_student()
-        template = self.render_template("static/html_author_view.html", context_html)
+        template = self.render_template("static/html/author_view.html", context_html)
         # html = self.resource_string("static/html/author_view.html")
         # frag = Fragment(html)
         frag = Fragment(template)
