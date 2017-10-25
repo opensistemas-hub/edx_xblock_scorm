@@ -217,7 +217,7 @@ class ScormXBlock(XBlock):
             'field_scorm_file': self.fields['scorm_file'],
             'field_has_score': self.fields['has_score'],
             'has_score_value': self.has_score,
-            'fields': self.fields
+            'fields': json.dumps(self.fields)
         }
 
 
