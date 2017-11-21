@@ -118,13 +118,10 @@ class ScormXBlock(XBlock):
     def author_view(self, context):
         context_html = self.get_context_author()
         template = self.render_template("static/html/author_view.html", context_html)
-        frag = Fragment(template)
+        frag = Fragment(u'{0}'.format(template))
         frag.add_css(self.resource_string("static/css/scormxblock.css"))
-        frag.add_javascript(self.resource_string("static/js/src/scormxblock.js"))
-        settings = {
-            'version_scorm': self.version_scorm
-        }
-        frag.initialize_js('ScormXBlock', json_args=settings)
+        frag.add_javascript(self.resource_string("static/js/src/author.js"))
+        frag.initialize_js('AuthorXBlock')
         return frag
 
     @XBlock.handler
