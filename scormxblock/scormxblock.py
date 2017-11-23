@@ -2,21 +2,64 @@ import json
 import re
 import os
 import pkg_resources
+import urlparse
 import zipfile
 import shutil
 import xml.etree.ElementTree as ET
+from functools import wraps
 
 from django.conf import settings
 from django.template import Context, Template
+
 from webob import Response
 
 from xblock.core import XBlock
 from xblock.fields import Scope, String, Float, Boolean, Dict
 from xblock.fragment import Fragment
 
+from xmodule.contentstore.django import contentstore
+from xmodule.contentstore.content import StaticContent
+
+from fs.osfs import OSFS
+
+
+
 # Make '_' a no-op so we can scrape strings
 _ = lambda text: text
 
+# Decorate folder structure for scorm content
+def foldered(fn):
+    @wraps(fn)
+    def wrapper(self, *args):
+        # Create dir first
+        path_to_file = os.path.join(
+            settings.PROFILE_IMAGE_BACKEND['options']['location'],
+            self.location.block_id
+        )
+
+        if not os.path.exists(path_to_file):
+            os.makedirs(path_to_file)
+
+        # Uncompress content from assets later??
+        if self.scorm_zip_file:
+            assets, _ = contentstore().get_all_content_for_course(self.location.course_key)
+            zipCandidates = filter(lambda a: a.get('displayname') == self.scorm_zip_file, assets)
+            if len(zipCandidates):
+                zipScorm = zipCandidates[0]
+                try:
+                    with contentstore().fs.get(zipScorm.get('_id')) as fp:
+                        disk_fs = OSFS(path_to_file)
+                        with disk_fs.open(self.scorm_zip_file, 'wb') as asset_file:
+                            asset_file.write(fp.read())
+                except Exception as e:
+                    raise e
+
+                zFile = u'{}/{}'.format(path_to_file, self.scorm_zip_file)
+                if os.path.exists(zFile):
+                    zipfile.ZipFile(zFile, 'r').extractall(path_to_file)
+
+        return fn(self, *args)
+    return wrapper
 
 class ScormXBlock(XBlock):
 
@@ -80,13 +123,28 @@ class ScormXBlock(XBlock):
 
     has_author_view = True
 
+
+
+
     @property
     def scorm_file_path(self):
         scorm_file_path = ''
         if self.scorm_file:
+            scorm_file = self.scorm_file
             scheme = 'https' if settings.HTTPS == 'on' else 'http'
-            scorm_file_path = '{}://{}{}'.format(scheme, settings.ENV_TOKENS.get('LMS_BASE'), self.scorm_file)
-
+            # If self.location.block_id NOT in scorm_file, re-write
+            print scorm_file
+            if self.location.block_id not in scorm_file:
+                scorm_file = '{}/{}'.format(
+                os.path.join(
+                    settings.PROFILE_IMAGE_BACKEND['options']['base_url'],
+                    self.location.block_id),
+                scorm_file)
+            scorm_file_path = '{}://{}{}'.format(
+                scheme,
+                settings.ENV_TOKENS.get('LMS_BASE'),
+                scorm_file
+            )
         return scorm_file_path
 
     def resource_string(self, path):
@@ -94,6 +152,7 @@ class ScormXBlock(XBlock):
         data = pkg_resources.resource_string(__name__, path)
         return data.decode("utf8")
 
+    @foldered
     def student_view(self, context=None):
         context_html = self.get_context_student()
         template = self.render_template('static/html/scormxblock.html', context_html)
@@ -106,6 +165,7 @@ class ScormXBlock(XBlock):
         frag.initialize_js('ScormXBlock', json_args=settings)
         return frag
 
+    @foldered
     def studio_view(self, context=None):
         context_html = self.get_context_studio()
         template = self.render_template('static/html/studio.html', context_html)
@@ -115,7 +175,8 @@ class ScormXBlock(XBlock):
         frag.initialize_js('ScormStudioXBlock')
         return frag
 
-    def author_view(self, context):
+    @foldered
+    def author_view(self, context=None):
         context_html = self.get_context_author()
         template = self.render_template("static/html/author_view.html", context_html)
         frag = Fragment(u'{0}'.format(template))
