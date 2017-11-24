@@ -46,17 +46,18 @@ def foldered(fn):
             zipCandidates = filter(lambda a: a.get('displayname') == self.scorm_zip_file, assets)
             if len(zipCandidates):
                 zipScorm = zipCandidates[0]
-                try:
-                    with contentstore().fs.get(zipScorm.get('_id')) as fp:
-                        disk_fs = OSFS(path_to_file)
-                        with disk_fs.open(self.scorm_zip_file, 'wb') as asset_file:
-                            asset_file.write(fp.read())
-                except Exception as e:
-                    raise e
-
                 zFile = u'{}/{}'.format(path_to_file, self.scorm_zip_file)
-                if os.path.exists(zFile):
-                    zipfile.ZipFile(zFile, 'r').extractall(path_to_file)
+                if not os.path.exists(zFile):
+                    try:
+                        with contentstore().fs.get(zipScorm.get('_id')) as fp:
+                            disk_fs = OSFS(path_to_file)
+                            with disk_fs.open(self.scorm_zip_file, 'wb') as asset_file:
+                                asset_file.write(fp.read())
+                    except Exception as e:
+                        raise e
+
+                    if os.path.exists(zFile):
+                        zipfile.ZipFile(zFile, 'r').extractall(path_to_file)
 
         return fn(self, *args)
     return wrapper
