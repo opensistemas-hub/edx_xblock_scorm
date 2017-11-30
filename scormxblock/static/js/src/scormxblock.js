@@ -115,7 +115,7 @@ function ScormXBlock(runtime, element, settings) {
 
     console.log(runtime, element, settings);
 
-    $(element).find('.button').bind('click', fullscreen);
+    $(element).find('.fullscreen').bind('click', fullscreen);
 
     // when you are in fullscreen, ESC and F11 may not be trigger by keydown listener.
     // so don't use it to detect exit fullscreen
