@@ -34,6 +34,7 @@ def foldered(fn):
         # Create dir first
         path_to_file = os.path.join(
             settings.PROFILE_IMAGE_BACKEND['options']['location'],
+            unicode(self.location.course_key),
             self.location.block_id
         )
 
@@ -125,8 +126,6 @@ class ScormXBlock(XBlock):
     has_author_view = True
 
 
-
-
     @property
     def scorm_file_path(self):
         scorm_file_path = ''
@@ -136,11 +135,12 @@ class ScormXBlock(XBlock):
             # If self.location.block_id NOT in scorm_file, re-write
             print scorm_file
             if self.location.block_id not in scorm_file:
-                scorm_file = '{}/{}'.format(
-                os.path.join(
-                    settings.PROFILE_IMAGE_BACKEND['options']['base_url'],
-                    self.location.block_id),
-                scorm_file)
+                scorm_file = '/'.join([
+                        '/scorm_content',
+                        unicode(self.location.course_key),
+                        self.location.block_id,
+                        scorm_file
+                    ])
             scorm_file_path = '{}://{}{}'.format(
                 scheme,
                 settings.ENV_TOKENS.get('LMS_BASE'),
