@@ -43,10 +43,6 @@ function AuthorXBlock(runtime, element) {
          document.webkitIsFullScreen ||
          document.mozFullScreen ||
          document.msFullscreenElement) {
-      console.log('enter fullscreen');
-    }
-    else {
-      console.log('exit fullscreen');
     }
     // force to reload iframe once to prevent the iframe source didn't care about trying to resize the window
     // comment this line and you will see
