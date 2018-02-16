@@ -132,7 +132,8 @@ class ScormXBlock(XBlock):
         scorm_file_path = ''
         if self.scorm_file:
             scorm_file = self.scorm_file
-            scheme = 'https' if settings.HTTPS == 'on' else 'http'
+            https = settings.ENV_TOKENS.get('HTTPS', settings.HTTPS)
+            scheme = 'https' if https is 'on' else 'http'
             # If self.location.block_id NOT in scorm_file, re-write
             print scorm_file
             if self.location.block_id not in scorm_file:
