@@ -5,7 +5,7 @@ function AuthorXBlock(runtime, element) {
   // when you are in fullscreen, ESC and F11 may not be trigger by keydown listener.
   // so don't use it to detect exit fullscreen
   document.addEventListener('keydown', function (e) {
-    console.log('key press' + e.keyCode);
+    
   });
   // detect enter or exit fullscreen mode
   document.addEventListener('webkitfullscreenchange', fullscreenChange);
@@ -42,12 +42,9 @@ function AuthorXBlock(runtime, element) {
     if (document.fullscreenEnabled ||
          document.webkitIsFullScreen ||
          document.mozFullScreen ||
-         document.msFullscreenElement) {
-      console.log('enter fullscreen');
+         document.msFullscreenElement) {      
     }
-    else {
-      console.log('exit fullscreen');
-    }
+
     // force to reload iframe once to prevent the iframe source didn't care about trying to resize the window
     // comment this line and you will see
     var iframe = document.querySelector('iframe');
